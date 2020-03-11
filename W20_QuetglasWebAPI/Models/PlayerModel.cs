@@ -34,5 +34,14 @@ namespace W20_QuetglasWebAPI.Models
             get { return _birthday; }
             set { _birthday = value; }
         }
+
+        private DateTime _lastLogin;
+
+        public DateTime LastLogin
+        {
+            get { return _lastLogin; }
+            set { _lastLogin = value; }
+        }
+
     }
 }

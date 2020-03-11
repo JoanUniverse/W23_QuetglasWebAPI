@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Web.Http;
 using W20_QuetglasWebAPI.Models;
 using Microsoft.AspNet.Identity;
+using System.Globalization;
 
 namespace W20_QuetglasWebAPI.Controllers
 {
@@ -45,10 +46,33 @@ namespace W20_QuetglasWebAPI.Controllers
             string authenticatedAspNetUserId = RequestContext.Principal.Identity.GetUserId();
             using (IDbConnection cnn = new ApplicationDbContext().Database.Connection)
             {
-                string sql = $"SELECT Id, Name, Email, BirthDay FROM dbo.Players " +
+                string sql = $"SELECT Id, Name, Email, BirthDay, LastLogin FROM dbo.Players " +
                     $"WHERE Id LIKE '{authenticatedAspNetUserId}'";
                 var player = cnn.Query<PlayerModel>(sql).FirstOrDefault();
                 return player;
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdateLastLogin")]
+        public IHttpActionResult UpdateLastLogin()
+        {
+            string authenticatedAspNetUserId = RequestContext.Principal.Identity.GetUserId();
+            using (IDbConnection cnn = new ApplicationDbContext().Database.Connection)
+            {
+                string time = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", DateTimeFormatInfo.InvariantInfo);
+                string sql = $"UPDATE dbo.Players SET LastLogin = '{time}' " +
+                    $"WHERE Id = '{authenticatedAspNetUserId}'";
+                try
+                {
+                    cnn.Execute(sql);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest("Error updateing player LastLogin in database: " + ex.Message);
+                }
+
+                return Ok();
             }
         }
     }
